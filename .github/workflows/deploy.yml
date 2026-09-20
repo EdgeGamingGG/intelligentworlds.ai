@@ -1,0 +1,64 @@
+name: Deploy to S3 + CloudFront
+
+# Publishes the static site to S3 and invalidates CloudFront. Same pattern as
+# EdgeGamingGG/indie.ludeo.com: GitHub OIDC into the production deploy role,
+# no static keys. Infra lives in EdgeGamingGG/Terraform,
+# environments/production/us-east-1/websites (`intelligentworlds-ai` entry).
+#
+# Prerequisite (one-time, after that stack is applied):
+#   Settings > Secrets and variables > Actions > Variables
+#     S3_BUCKET                  = prod-use1-websites-intelligentworlds-ai
+#     CLOUDFRONT_DISTRIBUTION_ID = <terraform output distribution_ids>
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-s3-cloudfront
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ROLE_ARN: arn:aws:iam::357632654526:role/GitHubAction-AssumeRoleWithAction
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build dist
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          rsync -a \
+            --exclude='dist' --exclude='.git' --exclude='.github' \
+            --exclude='.gitignore' --exclude='.DS_Store' \
+            --exclude='scripts' --exclude='README.md' \
+            ./ dist/
+
+      - name: Sync to S3
+        run: |
+          set -euo pipefail
+          aws s3 sync dist/ "s3://${{ vars.S3_BUCKET }}" \
+            --delete \
+            --cache-control "public, max-age=300"
+
+      - name: Invalidate CloudFront
+        run: |
+          set -euo pipefail
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
