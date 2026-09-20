@@ -1,0 +1,173 @@
+/* =========================================================================
+   Intelligent Worlds — the public page.
+
+   One screen, one centred lockup, and a room being scanned behind it. The
+   tokens and the faces are the company's own, carried over from the internal
+   material so the two read as one house: near-black ground, white ink stepped
+   down in transparency, Geist for words, Geist Mono for anything that behaves
+   like an instrument label, Fraunces italic for the one word the sentence
+   turns on.
+
+   Deliberately single-theme. The brand is dark; a light variant would be a
+   different company.
+   ========================================================================= */
+
+:root {
+  --bg: #0d0d0f;
+  --ink: #ffffff;
+  --ink-2: rgba(255, 255, 255, 0.64);
+  --ink-3: rgba(255, 255, 255, 0.42);
+  --ink-4: rgba(255, 255, 255, 0.22);
+  --line: rgba(255, 255, 255, 0.16);
+  --gold: #eca746;
+
+  --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { height: 100%; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+
+  display: grid;
+  place-items: center;
+  padding: clamp(28px, 6vw, 72px);
+}
+
+/* ---------- the field ---------- */
+
+#field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Until the script paints, the page is already a lit space rather than a
+     black rectangle — this is also what a reader with JavaScript off sees. */
+  background:
+    radial-gradient(110% 70% at 52% 26%, rgba(236, 167, 70, 0.10) 0%, rgba(13, 13, 15, 0) 58%),
+    radial-gradient(90% 70% at 24% 78%, rgba(120, 150, 210, 0.08) 0%, rgba(13, 13, 15, 0) 62%),
+    var(--bg);
+}
+
+/* Holds the middle of the screen back so the lockup always has its contrast,
+   whatever the field happens to be drawing behind it, and closes the corners
+   so the picture reads as one object rather than as a full-bleed texture. */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 34% at 50% 50%, rgba(13, 13, 15, 0.96) 0%, rgba(13, 13, 15, 0.88) 34%, rgba(13, 13, 15, 0.42) 68%, rgba(13, 13, 15, 0) 100%),
+    radial-gradient(125% 105% at 50% 48%, rgba(13, 13, 15, 0) 38%, rgba(13, 13, 15, 0.70) 100%),
+    linear-gradient(to bottom, rgba(13, 13, 15, 0.45) 0%, rgba(13, 13, 15, 0) 20%);
+}
+
+/* A whisper of tooth, so the gradients never band on a wide display. */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ---------- the lockup ---------- */
+
+main {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 44rem;
+}
+
+.mark {
+  display: block;
+  height: clamp(18px, 1.8vw, 26px);
+  width: auto;
+  margin-bottom: clamp(18px, 2.6vh, 28px);
+  opacity: 0.97;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(23px, 2.9vw, 42px);
+  font-weight: 300;
+  line-height: 1.14;
+  letter-spacing: -0.032em;
+  text-wrap: balance;
+}
+
+h1 em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: -0.008em;
+}
+
+.state {
+  margin: clamp(12px, 1.8vh, 18px) 0 0;
+  font-size: clamp(13px, 1vw, 15.5px);
+  color: var(--ink-2);
+}
+
+.mail {
+  display: inline-block;
+  margin-top: clamp(26px, 4.2vh, 44px);
+  padding-bottom: 3px;
+  border-bottom: 1px solid transparent;
+  color: var(--ink-3);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  transition: color 0.24s ease, border-color 0.24s ease;
+}
+
+.mail:hover,
+.mail:focus-visible {
+  color: var(--ink);
+  border-bottom-color: var(--line);
+}
+
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; border-radius: 2px; }
+
+/* ---------- narrow ---------- */
+
+@media (max-width: 720px) {
+  .veil {
+    background:
+      radial-gradient(78% 30% at 50% 50%, rgba(13, 13, 15, 0.96) 0%, rgba(13, 13, 15, 0.88) 38%, rgba(13, 13, 15, 0.40) 72%, rgba(13, 13, 15, 0) 100%),
+      radial-gradient(135% 105% at 50% 48%, rgba(13, 13, 15, 0) 36%, rgba(13, 13, 15, 0.74) 100%);
+  }
+}
+
+@media (max-height: 480px) {
+  .mail { margin-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

@@ -10,9 +10,9 @@ name: Deploy to S3 + CloudFront
 #     S3_BUCKET                  = prod-use1-websites-intelligentworlds-ai
 #     CLOUDFRONT_DISTRIBUTION_ID = <terraform output distribution_ids>
 
+# Manual-only while the site is served by GitHub Pages (CNAME file); switch
+# back to `push: branches: [main]` at the CloudFront cutover.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
           rsync -a \
             --exclude='dist' --exclude='.git' --exclude='.github' \
             --exclude='.gitignore' --exclude='.DS_Store' \
-            --exclude='scripts' --exclude='README.md' \
+            --exclude='README.md' --exclude='CNAME' \
             ./ dist/
 
       - name: Sync to S3
